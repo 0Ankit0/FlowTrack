@@ -1,22 +1,27 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Fraunces, JetBrains_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { THEME_PRESETS } from '@/lib/themes';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const bodyFont = Plus_Jakarta_Sans({
+  variable: '--font-plus-jakarta',
   subsets: ['latin'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const displayFont = Fraunces({
+  variable: '--font-fraunces',
+  subsets: ['latin'],
+});
+
+const monoFont = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: 'Fastapi Template',
-  description: 'Modern Fastapi Template platform',
+  title: 'Flowtrack',
+  description: 'Ticketing and project management workspace for internal delivery and external client support',
 };
 
 export default function RootLayout({
@@ -69,7 +74,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${bodyFont.variable} ${displayFont.variable} ${monoFont.variable} antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

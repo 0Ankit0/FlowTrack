@@ -1,33 +1,35 @@
-# FastAPI Template
+# Flowtrack
 
-A reusable full-stack template with FastAPI, Next.js, and Flutter, built around feature flags, pluggable providers, and reusable project documentation.
+Flowtrack is an internal project management and external ticketing platform built on FastAPI, Next.js, and Flutter. The current implementation adds the first backend MVP for multi-tenant ticket intake, assignment workflows, project planning, milestone tracking, SLA policies, reporting, and audit history.
 
-The project is designed so that most customization starts with configuration and capability discovery, not code forks. The backend is the source of truth for enabled modules, active providers, public runtime settings, and operational behavior.
+## What Exists Now
 
-## What It Includes
+- System design documentation in [docs/system-design/README.md](/Users/ankit/Projects/Python/fastapi/flowtrack/docs/system-design/README.md)
+- Existing platform modules for auth, multi-tenancy, notifications, analytics, finance, and observability
+- New Flowtrack backend APIs for:
+  - tickets, comments, attachments, and assignment history
+  - projects, milestones, and tasks
+  - operational summaries, SLA policy administration, and audit logs
+- Seeded Flowtrack roles and default SLA policies at startup
 
-- Config-driven modules for auth, multi-tenancy, notifications, websockets, finance, analytics, and social auth.
-- Communications provider switching for email, push, and SMS.
-- Runtime discovery APIs for clients and operators.
-- Database-backed runtime settings overrides for safe operational config.
-- Centralized operational config for cookies, hosts, rate limits, logging, observability, storage, Celery, and websocket behavior.
-- Web and mobile clients that adapt to enabled modules and configured providers.
-- A full `docs/` system modeled on the Project-Ideas documentation structure.
+## Backend Scope
+
+- External client users can create and track tickets within their organization
+- Internal users can triage, assign, update, and close tickets based on role
+- Project managers can create projects, plan milestones, and link delivery work
+- Milestones cannot be completed while linked tickets remain open
+- Every mutation records an audit entry
 
 ## Quick Start
 
-1. Review [docs/README.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/README.md).
-2. Run `make setup`.
-3. Read [project-orientation.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/project-orientation.md), [configuration-management.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/configuration-management.md), [template-finalization-checklist.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/template-finalization-checklist.md), and [TEMPLATE_RELEASE_CHECKLIST.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/TEMPLATE_RELEASE_CHECKLIST.md).
-4. Start local dependencies with `make infra-up`.
-5. Run migrations with `make backend-migrate`.
-6. Start the apps with `make backend-dev`, `make frontend-dev`, and `make mobile-dev`.
-7. Verify the starter with `make health-check` and `make ci`.
+1. Review [docs/system-design/README.md](/Users/ankit/Projects/Python/fastapi/flowtrack/docs/system-design/README.md).
+2. Copy [backend/.env.example](/Users/ankit/Projects/Python/fastapi/flowtrack/backend/.env.example) to `backend/.env`.
+3. From `backend/`, install dependencies with `uv sync --group test`.
+4. Start the API with `uv run uvicorn src.main:app --reload`.
+5. Open `/docs` and use the `/api/v1/tickets`, `/api/v1/projects`, `/api/v1/reports/operational-summary`, `/api/v1/audit-logs`, and `/api/v1/admin/sla-policies/{policy_id}` endpoints.
 
-## Validation
+## Verification
 
-- Backend lint and tests: `make backend-lint` and `make backend-test`
-- Frontend lint, typecheck, tests, and build: `make frontend-lint` and `make frontend-test`
-- Mobile analyze and tests: `make mobile-lint` and `make mobile-test`
-- Docs validation: `make docs`
-- Full local quality bar: `make ci`
+- General API smoke test: `cd backend && uv run --group test pytest tests/integration/api/test_general.py -q`
+- Flowtrack integration tests: `cd backend && uv run --group test pytest tests/integration/flowtrack/test_flowtrack_api.py -q`
+- Flowtrack workflow unit tests: `cd backend && uv run --group test pytest tests/unit/flowtrack/test_workflow.py -q`

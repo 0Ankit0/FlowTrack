@@ -50,7 +50,7 @@ export function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-64 right-0 z-10 h-16 bg-white border-b border-gray-200">
+    <header className="fixed top-0 left-72 right-0 z-10 h-16 border-b border-[rgba(15,23,42,0.08)] bg-white/80 backdrop-blur-xl">
       <div className="flex h-full items-center justify-between px-6">
         {/* Left: tenant name */}
         <div className="flex items-center gap-2">
