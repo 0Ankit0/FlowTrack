@@ -1,7 +1,7 @@
 [project]
-name = "fastapi-template"
+name = "flowtrack-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Flowtrack backend API for ticketing and project management"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [

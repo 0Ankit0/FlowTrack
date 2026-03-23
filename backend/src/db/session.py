@@ -38,14 +38,16 @@ async def init_db():
     import src.apps.notification.models  # noqa: F401
     import src.apps.multitenancy.models  # noqa: F401
     import src.apps.finance.models  # noqa: F401
-    import src.apps.websocket.models  # noqa: F401
     import src.apps.observability.models  # noqa: F401
+    import src.apps.flowtrack.models  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
     async with async_session_factory() as session:
         await sync_general_settings(session)
+        from src.apps.flowtrack.services.seed import seed_flowtrack_defaults
+        await seed_flowtrack_defaults(session)
 
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_factory() as session:

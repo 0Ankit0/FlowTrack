@@ -10,6 +10,7 @@ from sqlmodel import SQLModel
 from src.main import app
 from src.db import session as db_session_module
 from src.db.session import get_session
+from src.apps.flowtrack.services.seed import seed_flowtrack_defaults
 
 # Set TESTING environment variable before importing settings
 os.environ["TESTING"] = "True"
@@ -47,6 +48,7 @@ async def db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
     )
     
     async with async_session() as session:
+        await seed_flowtrack_defaults(session)
         yield session
 
 
