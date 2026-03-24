@@ -33,11 +33,11 @@ class NotificationPreference {
   }
 
   Map<String, dynamic> toJson() => {
-        'email_enabled': emailEnabled,
-        'push_enabled': pushEnabled,
-        'sms_enabled': smsEnabled,
-        'websocket_enabled': websocketEnabled,
-      };
+    'email_enabled': emailEnabled,
+    'push_enabled': pushEnabled,
+    'sms_enabled': smsEnabled,
+    'websocket_enabled': websocketEnabled,
+  };
 
   NotificationPreference copyWith({
     bool? emailEnabled,

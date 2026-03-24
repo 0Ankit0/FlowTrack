@@ -100,7 +100,9 @@ class InitiatePaymentResponse {
   factory InitiatePaymentResponse.fromJson(Map<String, dynamic> json) {
     return InitiatePaymentResponse(
       transactionId: json['transaction_id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
+      provider: PaymentProvider.fromString(
+        json['provider'] as String? ?? 'khalti',
+      ),
       status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
       paymentUrl: json['payment_url'] as String?,
       providerPidx: json['provider_pidx'] as String?,
@@ -157,7 +159,9 @@ class VerifyPaymentResponse {
   factory VerifyPaymentResponse.fromJson(Map<String, dynamic> json) {
     return VerifyPaymentResponse(
       transactionId: json['transaction_id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
+      provider: PaymentProvider.fromString(
+        json['provider'] as String? ?? 'khalti',
+      ),
       status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
       amount: json['amount'] as int?,
       providerTransactionId: json['provider_transaction_id'] as String?,
@@ -198,7 +202,9 @@ class PaymentTransaction {
   factory PaymentTransaction.fromJson(Map<String, dynamic> json) {
     return PaymentTransaction(
       id: json['id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
+      provider: PaymentProvider.fromString(
+        json['provider'] as String? ?? 'khalti',
+      ),
       status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
       amount: json['amount'] as int? ?? 0,
       currency: json['currency'] as String? ?? 'NPR',

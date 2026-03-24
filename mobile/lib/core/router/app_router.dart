@@ -6,6 +6,9 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/otp_verify_page.dart';
 import '../../features/auth/presentation/pages/reset_password_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/flowtrack/presentation/pages/flowtrack_projects_page.dart';
+import '../../features/flowtrack/presentation/pages/flowtrack_releases_page.dart';
+import '../../features/flowtrack/presentation/pages/flowtrack_tickets_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/payments/presentation/pages/payments_page.dart';
@@ -26,7 +29,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 
       if (isLoading) return null;
 
-      final onAuthPage = location == AppConstants.loginRoute ||
+      final onAuthPage =
+          location == AppConstants.loginRoute ||
           location == AppConstants.registerRoute ||
           location == AppConstants.forgotPasswordRoute ||
           location == AppConstants.resetPasswordRoute ||
@@ -35,8 +39,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (!isAuthenticated && !onAuthPage) {
         return AppConstants.loginRoute;
       }
-      if (isAuthenticated && (location == AppConstants.loginRoute ||
-          location == AppConstants.registerRoute)) {
+      if (isAuthenticated &&
+          (location == AppConstants.loginRoute ||
+              location == AppConstants.registerRoute)) {
         return AppConstants.homeRoute;
       }
       return null;
@@ -64,8 +69,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppConstants.resetPasswordRoute,
         builder: (context, state) {
-          final token = state.extra as String? ??
-              state.uri.queryParameters['token'] ?? '';
+          final token =
+              state.extra as String? ??
+              state.uri.queryParameters['token'] ??
+              '';
           return ResetPasswordPage(token: token);
         },
       ),
@@ -80,6 +87,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: AppConstants.homeRoute,
                 builder: (context, state) => const HomeTab(),
                 routes: [
+                  GoRoute(
+                    path: 'tickets',
+                    builder: (context, state) => const FlowtrackTicketsPage(),
+                  ),
+                  GoRoute(
+                    path: 'projects',
+                    builder: (context, state) => const FlowtrackProjectsPage(),
+                  ),
+                  GoRoute(
+                    path: 'releases',
+                    builder: (context, state) => const FlowtrackReleasesPage(),
+                  ),
                   GoRoute(
                     path: 'payments',
                     builder: (context, state) => const PaymentsPage(),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../flowtrack/presentation/pages/flowtrack_dashboard_page.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 
 class HomeTab extends StatelessWidget {
@@ -8,70 +10,7 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Home')),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            'Quick Access',
-            style: Theme.of(context)
-                .textTheme
-                .titleMedium
-                ?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          _QuickAccessCard(
-            icon: Icons.payment,
-            title: 'Payments',
-            subtitle: 'Khalti · eSewa · Pay & view history',
-            color: Colors.indigo,
-            onTap: () => context.go('/home/payments'),
-          ),
-          const SizedBox(height: 8),
-          _QuickAccessCard(
-            icon: Icons.devices,
-            title: 'Active Sessions',
-            subtitle: 'View and revoke active tokens',
-            color: Colors.teal,
-            onTap: () => context.go('/home/settings/tokens'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickAccessCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickAccessCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: color.withValues(alpha: 0.12),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-        subtitle: Text(subtitle,
-            style: const TextStyle(fontSize: 12, color: Colors.grey)),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: onTap,
-      ),
-    );
+    return const FlowtrackDashboardPage();
   }
 }
 
@@ -82,21 +21,25 @@ class HomePage extends ConsumerWidget {
 
   static const _destinations = [
     NavigationDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: 'Home'),
+      icon: Icon(Icons.dashboard_outlined),
+      selectedIcon: Icon(Icons.dashboard_rounded),
+      label: 'Flowtrack',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.notifications_outlined),
-        selectedIcon: Icon(Icons.notifications),
-        label: 'Notifications'),
+      icon: Icon(Icons.notifications_outlined),
+      selectedIcon: Icon(Icons.notifications),
+      label: 'Notifications',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.settings_outlined),
-        selectedIcon: Icon(Icons.settings),
-        label: 'Settings'),
+      icon: Icon(Icons.settings_outlined),
+      selectedIcon: Icon(Icons.settings),
+      label: 'Settings',
+    ),
     NavigationDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: 'Profile'),
+      icon: Icon(Icons.person_outline),
+      selectedIcon: Icon(Icons.person),
+      label: 'Profile',
+    ),
   ];
 
   void _onDestinationSelected(int index) {
@@ -137,6 +80,13 @@ class HomePage extends ConsumerWidget {
         onDestinationSelected: _onDestinationSelected,
         destinations: destinations,
       ),
+      floatingActionButton: navigationShell.currentIndex == 0
+          ? FloatingActionButton.extended(
+              onPressed: () => context.push(AppConstants.ticketsRoute),
+              icon: const Icon(Icons.confirmation_number_outlined),
+              label: const Text('Tickets'),
+            )
+          : null,
     );
   }
 }

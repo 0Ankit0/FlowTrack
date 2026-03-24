@@ -14,7 +14,7 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final appName = dotenv.env['PROJECT_NAME'] ?? 'Project Template';
+    final appName = dotenv.env['PROJECT_NAME'] ?? 'Flowtrack';
 
     return MaterialApp.router(
       title: appName,
@@ -23,9 +23,8 @@ class App extends ConsumerWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: themeMode,
       routerConfig: router,
-      builder: (context, child) => NotificationBootstrapper(
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) =>
+          NotificationBootstrapper(child: child ?? const SizedBox.shrink()),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

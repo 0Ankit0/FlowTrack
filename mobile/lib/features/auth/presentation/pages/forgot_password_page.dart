@@ -31,7 +31,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     setState(() => _isLoading = true);
     try {
       final dio = ref.read(dioClientProvider).dio;
@@ -39,8 +41,15 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         ApiEndpoints.passwordResetRequest,
         data: {'email': _emailController.text.trim()},
       );
-      if (mounted) setState(() { _isLoading = false; _submitted = true; });
-      ref.read(analyticsServiceProvider).capture(AuthAnalyticsEvents.passwordResetRequested);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _submitted = true;
+        });
+      }
+      ref
+          .read(analyticsServiceProvider)
+          .capture(AuthAnalyticsEvents.passwordResetRequested);
     } catch (e) {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -69,15 +78,17 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.mark_email_read_outlined,
-                        size: 80,
-                        color: Theme.of(context).colorScheme.primary)
-                        .animate()
-                        .scale(),
+                    Icon(
+                      Icons.mark_email_read_outlined,
+                      size: 80,
+                      color: Theme.of(context).colorScheme.primary,
+                    ).animate().scale(),
                     const SizedBox(height: 24),
-                    Text('Check your email',
-                        style: Theme.of(context).textTheme.headlineSmall,
-                        textAlign: TextAlign.center),
+                    Text(
+                      'Check your email',
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
                     const SizedBox(height: 12),
                     Text(
                       'We\'ve sent a password reset link to ${_emailController.text}',

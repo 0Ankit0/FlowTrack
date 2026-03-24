@@ -10,7 +10,11 @@ class PaymentResult {
   final String message;
   final VerifyPaymentResponse? response;
 
-  const PaymentResult({required this.success, required this.message, this.response});
+  const PaymentResult({
+    required this.success,
+    required this.message,
+    this.response,
+  });
 }
 
 /// Full-screen WebView for both Khalti and eSewa payments.
@@ -50,11 +54,13 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _loading = true),
-        onPageFinished: (_) => setState(() => _loading = false),
-        onNavigationRequest: _onNavRequest,
-      ));
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) => setState(() => _loading = true),
+          onPageFinished: (_) => setState(() => _loading = false),
+          onNavigationRequest: _onNavRequest,
+        ),
+      );
 
     if (widget.provider == PaymentProvider.esewa) {
       _loadEsewaForm();
@@ -65,15 +71,18 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
 
   /// Builds an HTML page with a hidden form and auto-submits it for eSewa.
   void _loadEsewaForm() {
-    final action = widget.esewaFormAction ??
+    final action =
+        widget.esewaFormAction ??
         'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
     final fields = widget.esewaFormFields ?? {};
     final inputs = fields.entries
-        .map((e) =>
-            '<input type="hidden" name="${e.key}" value="${e.value}" />')
+        .map(
+          (e) => '<input type="hidden" name="${e.key}" value="${e.value}" />',
+        )
         .join('\n');
 
-    final html = '''
+    final html =
+        '''
 <!DOCTYPE html>
 <html>
 <body>
@@ -135,9 +144,9 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
       );
     } catch (e) {
       if (!mounted) return;
-      Navigator.of(context).pop(
-        PaymentResult(success: false, message: e.toString()),
-      );
+      Navigator.of(
+        context,
+      ).pop(PaymentResult(success: false, message: e.toString()));
     }
   }
 

@@ -18,7 +18,7 @@ class AuthException extends AppException {
 
 class UnauthorizedException extends AuthException {
   const UnauthorizedException()
-      : super(message: 'Unauthorized. Please log in again.', statusCode: 401);
+    : super(message: 'Unauthorized. Please log in again.', statusCode: 401);
 }
 
 class ServerException extends AppException {

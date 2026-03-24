@@ -9,11 +9,14 @@ final tokenRepositoryProvider = Provider<TokenRepository>((ref) {
 });
 
 final tokensProvider =
-    FutureProvider.family<PaginatedResponse<TokenTracking>, ({int skip, int limit})>(
-  (ref, params) => ref
-      .watch(tokenRepositoryProvider)
-      .getTokens(skip: params.skip, limit: params.limit),
-);
+    FutureProvider.family<
+      PaginatedResponse<TokenTracking>,
+      ({int skip, int limit})
+    >(
+      (ref, params) => ref
+          .watch(tokenRepositoryProvider)
+          .getTokens(skip: params.skip, limit: params.limit),
+    );
 
 final tokenListProvider = FutureProvider<List<TokenTracking>>((ref) async {
   final result = await ref.watch(tokenRepositoryProvider).getTokens();

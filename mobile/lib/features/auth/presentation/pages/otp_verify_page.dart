@@ -51,7 +51,9 @@ class _OtpVerifyPageState extends ConsumerState<OtpVerifyPage> {
 
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(onPressed: () => context.go(AppConstants.loginRoute)),
+        leading: BackButton(
+          onPressed: () => context.go(AppConstants.loginRoute),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -71,17 +73,16 @@ class _OtpVerifyPageState extends ConsumerState<OtpVerifyPage> {
                 Text(
                   'Two-Factor Authentication',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                    fontWeight: FontWeight.bold,
+                  ),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 200.ms),
                 const SizedBox(height: 8),
                 Text(
                   'Enter the 6-digit code from your authenticator app',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(color: Colors.grey),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                   textAlign: TextAlign.center,
                 ).animate().fadeIn(delay: 300.ms),
                 const SizedBox(height: 40),

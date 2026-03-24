@@ -48,4 +48,17 @@ class ApiEndpoints {
   static const String paymentProviders = '/payments/providers/';
   static const String paymentInitiate = '/payments/initiate/';
   static const String paymentVerify = '/payments/verify/';
+
+  // Tenants
+  static const String tenants = '/tenants/';
+
+  // Flowtrack
+  static const String flowtrackOperationalSummary =
+      '/reports/operational-summary';
+  static const String flowtrackTickets = '/tickets/';
+  static String flowtrackTicket(String id) => '/tickets/$id';
+  static String flowtrackTicketComments(String id) => '/tickets/$id/comments';
+  static const String flowtrackProjects = '/projects/';
+  static String flowtrackProject(String id) => '/projects/$id';
+  static const String flowtrackReleases = '/releases/';
 }
