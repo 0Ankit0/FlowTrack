@@ -1,3 +1,3 @@
 #!/bin/bash
 
-tmux kill-session -t fastapi_template
+tmux kill-session -t flowtrack
