@@ -12,7 +12,6 @@ dependencies = [
     "passlib>=1.7.4",
     "python-jose[cryptography]>=3.5.0",
     "sqlmodel>=0.0.34",
-    "taskipy>=1.14.1",
     "slowapi>=0.1.9",
     "pyotp>=2.9.0",
     "qrcode>=8.0",
@@ -51,14 +50,6 @@ test = [
     "pytest-asyncio>=1.3.0",
     "pytest-cov>=7.0.0",
 ]
-
-[tool.taskipy.tasks]
-start = "uvicorn src.main:app --reload"
-test = "pytest --cov=src tests/"
-lint = "ruff check src tests"
-initial-migrate = 'alembic revision --autogenerate -m "init"'
-migrate = "alembic upgrade head"
-celery = "celery -A src.apps.core.celery_app worker --loglevel=info"
 
 [tool.ruff]
 target-version = "py314"
