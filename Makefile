@@ -16,10 +16,10 @@ backend-test:
 	cd backend && uv run pytest
 
 backend-dev:
-	cd backend && uv run task start
+	cd backend && uv run uvicorn src.main:app --reload
 
 backend-migrate:
-	cd backend && uv run task migrate
+	cd backend && uv run alembic upgrade head
 
 frontend-lint:
 	cd frontend && npm run lint

@@ -13,6 +13,7 @@ from httpx import AsyncClient, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.apps.finance.models.payment import PaymentProvider, PaymentStatus, PaymentTransaction
+from src.apps.iam.utils.hashid import encode_id
 
 
 # ---------------------------------------------------------------------------
@@ -257,7 +258,7 @@ class TestKhaltiPayment:
         data = resp.json()
         assert data["status"] == "completed"
         assert data["provider_transaction_id"] == "KHALTI_TXN_XYZ"
-        assert data["transaction_id"] == tx.id
+        assert data["transaction_id"] == encode_id(tx.id)
 
     @pytest.mark.unit
     async def test_khalti_verify_missing_pidx(self, client: AsyncClient):
@@ -408,7 +409,7 @@ class TestEsewaPayment:
         assert resp.status_code == 200
         data = resp.json()
         assert data["status"] == "completed"
-        assert data["transaction_id"] == tx.id
+        assert data["transaction_id"] == encode_id(tx.id)
 
     @pytest.mark.unit
     async def test_esewa_verify_invalid_signature(self, client: AsyncClient, db_session: AsyncSession):
@@ -466,7 +467,7 @@ class TestTransactionCRUD:
         await db_session.commit()
         await db_session.refresh(tx)
 
-        resp = await client.get(f"/api/v1/payments/{tx.id}/")
+        resp = await client.get(f"/api/v1/payments/{encode_id(tx.id)}/")
         assert resp.status_code == 200
         data = resp.json()
         assert data["purchase_order_id"] == "TX-READ-001"

@@ -8,7 +8,7 @@ class TestSettings:
     
     def test_project_name(self):
         """Test project name is set."""
-        assert settings.PROJECT_NAME == "FastAPI Template"
+        assert settings.PROJECT_NAME == "Flowtrack"
     
     def test_api_version(self):
         """Test API version prefix."""

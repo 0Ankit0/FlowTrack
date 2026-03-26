@@ -66,10 +66,10 @@ async def serialize_preference(
 ) -> NotificationPreferenceRead:
     devices = await list_devices(db, pref.user_id)
     push_providers = sorted({device.provider.value for device in devices})
-    data = NotificationPreferenceRead.model_validate(pref).model_dump()
-    data["push_provider"] = push_providers[0] if len(push_providers) == 1 else None
-    data["push_providers"] = push_providers
-    return NotificationPreferenceRead.model_validate(data)
+    result = NotificationPreferenceRead.model_validate(pref)
+    result.push_provider = push_providers[0] if len(push_providers) == 1 else None
+    result.push_providers = push_providers
+    return result
 
 
 async def register_device(
