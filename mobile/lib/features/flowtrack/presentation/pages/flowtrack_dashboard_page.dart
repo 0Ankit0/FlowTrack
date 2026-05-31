@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../data/models/flowtrack_models.dart';
 import '../providers/flowtrack_provider.dart';
 import '../widgets/flowtrack_widgets.dart';
 
@@ -206,7 +207,8 @@ class _DashboardHero extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tenants = ref.watch(flowtrackTenantsProvider).valueOrNull ?? [];
+    final tenantsAsync = ref.watch(flowtrackTenantsProvider);
+    final tenants = tenantsAsync.valueOrNull ?? [];
     final selectedTenant = ref.watch(selectedFlowtrackTenantProvider);
 
     return Container(
@@ -229,27 +231,39 @@ class _DashboardHero extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Flowtrack mobile command view',
-                  style: GoogleFonts.fraunces(
-                    fontSize: 30,
-                    height: 1.1,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              if (tenants.isNotEmpty)
-                FlowtrackTenantSelector(
-                  tenants: tenants,
-                  selectedTenant: selectedTenant,
-                  onChanged: onTenantChanged,
-                ),
-            ],
+          Text(
+            'Flowtrack mobile command view',
+            style: GoogleFonts.fraunces(
+              fontSize: 30,
+              height: 1.1,
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
           ),
+          const SizedBox(height: 14),
+          if (tenantsAsync.isLoading)
+            const _WorkspaceStatusCard(
+              icon: Icons.sync_rounded,
+              message: 'Loading your workspaces...',
+            )
+          else if (tenantsAsync.hasError)
+            _WorkspaceStatusCard(
+              icon: Icons.error_outline_rounded,
+              message: 'Unable to load workspaces right now.',
+              actionLabel: 'Retry',
+              onAction: () => ref.invalidate(flowtrackTenantsProvider),
+            )
+          else if (tenants.isEmpty)
+            const _WorkspaceStatusCard(
+              icon: Icons.apartment_rounded,
+              message: 'No workspace memberships found for this account.',
+            )
+          else
+            _WorkspaceSelectorCard(
+              tenants: tenants,
+              selectedTenant: selectedTenant,
+              onChanged: onTenantChanged,
+            ),
           const SizedBox(height: 14),
           Text(
             selectedTenantName == null
@@ -280,6 +294,101 @@ class _DashboardHero extends ConsumerWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WorkspaceSelectorCard extends StatelessWidget {
+  final List<WorkspaceTenant> tenants;
+  final WorkspaceTenant? selectedTenant;
+  final ValueChanged<String?> onChanged;
+
+  const _WorkspaceSelectorCard({
+    required this.tenants,
+    required this.selectedTenant,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Workspace',
+            style: TextStyle(
+              color: Color(0xD9FFFFFF),
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+          FlowtrackTenantSelector(
+            tenants: tenants,
+            selectedTenant: selectedTenant,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WorkspaceStatusCard extends StatelessWidget {
+  final IconData icon;
+  final String message;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+
+  const _WorkspaceStatusCard({
+    required this.icon,
+    required this.message,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Color(0xE6FFFFFF),
+                fontSize: 13,
+                height: 1.35,
+              ),
+            ),
+          ),
+          if (actionLabel != null && onAction != null)
+            TextButton(
+              onPressed: onAction,
+              child: Text(
+                actionLabel!,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
         ],
       ),
     );

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../../core/error/error_handler.dart';
 import '../../../../shared/widgets/app_text_field.dart';
 import '../../data/models/flowtrack_models.dart';
 import '../providers/flowtrack_provider.dart';
@@ -23,12 +26,13 @@ class FlowtrackTicketsPage extends ConsumerWidget {
             onPressed: selectedTenant == null
                 ? null
                 : () => showModalBottomSheet<void>(
-                    context: context,
-                    isScrollControlled: true,
-                    useSafeArea: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => _CreateTicketSheet(tenant: selectedTenant),
-                  ),
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) =>
+                          _CreateTicketSheet(tenant: selectedTenant),
+                    ),
             icon: const Icon(Icons.add_circle_outline_rounded),
           ),
         ],
@@ -57,11 +61,21 @@ class FlowtrackTicketsPage extends ConsumerWidget {
               data: (page) {
                 final tickets = page?.items ?? [];
                 if (selectedTenant == null) {
-                  return const FlowtrackEmptyState(
-                    title: 'No workspace selected',
-                    description:
-                        'Open the mobile dashboard and pick a tenant before opening the ticket queue.',
-                    icon: Icons.apartment_rounded,
+                  return Column(
+                    children: [
+                      const FlowtrackEmptyState(
+                        title: 'No workspace selected',
+                        description:
+                            'Open the mobile dashboard and pick a tenant before opening the ticket queue.',
+                        icon: Icons.apartment_rounded,
+                      ),
+                      const SizedBox(height: 12),
+                      OutlinedButton.icon(
+                        onPressed: () => context.go(AppConstants.homeRoute),
+                        icon: const Icon(Icons.dashboard_outlined),
+                        label: const Text('Open dashboard'),
+                      ),
+                    ],
                   );
                 }
                 if (tickets.isEmpty) {
@@ -308,8 +322,8 @@ class _TicketDetailSheetState extends ConsumerState<_TicketDetailSheet> {
                           FlowtrackStatusChip(value: comment.visibility),
                           _MetaText(
                             label: DateFormat.yMMMd().add_jm().format(
-                              DateTime.parse(comment.createdAt),
-                            ),
+                                  DateTime.parse(comment.createdAt),
+                                ),
                           ),
                         ],
                       ),
@@ -416,6 +430,16 @@ class _CreateTicketSheetState extends ConsumerState<_CreateTicketSheet> {
   String _priority = 'P3';
   bool _isSubmitting = false;
 
+  void _showMessage(String message, {bool isError = false}) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : null,
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -435,14 +459,13 @@ class _CreateTicketSheetState extends ConsumerState<_CreateTicketSheet> {
   Future<void> _submit() async {
     if (_titleController.text.trim().isEmpty ||
         _descriptionController.text.trim().isEmpty) {
+      _showMessage('Title and description are required.', isError: true);
       return;
     }
 
     setState(() => _isSubmitting = true);
     try {
-      await ref
-          .read(flowtrackRepositoryProvider)
-          .createTicket(
+      await ref.read(flowtrackRepositoryProvider).createTicket(
             tenantId: widget.tenant.id,
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim(),
@@ -455,6 +478,9 @@ class _CreateTicketSheetState extends ConsumerState<_CreateTicketSheet> {
       ref.invalidate(selectedFlowtrackTicketsProvider);
       ref.invalidate(selectedFlowtrackSummaryProvider);
       if (mounted) Navigator.of(context).pop();
+    } catch (error) {
+      final message = ErrorHandler.handle(error).message;
+      _showMessage(message, isError: true);
     } finally {
       if (mounted) {
         setState(() => _isSubmitting = false);

@@ -117,32 +117,31 @@ class FlowtrackTenantSelector extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: selectedTenant?.id ?? tenants.first.id,
-            dropdownColor: const Color(0xFF0F172A),
-            iconEnabledColor: Colors.white,
-            style: const TextStyle(color: Colors.white),
-            onChanged: onChanged,
-            items: tenants
-                .map(
-                  (tenant) => DropdownMenuItem<String>(
-                    value: tenant.id,
-                    child: Text(tenant.name, overflow: TextOverflow.ellipsis),
-                  ),
-                )
-                .toList(),
+    return Row(
+      children: [
+        const Icon(Icons.apartment_rounded, color: Colors.white, size: 18),
+        const SizedBox(width: 8),
+        Expanded(
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: selectedTenant?.id ?? tenants.first.id,
+              dropdownColor: const Color(0xFF0F172A),
+              iconEnabledColor: Colors.white,
+              style: const TextStyle(color: Colors.white),
+              onChanged: onChanged,
+              items: tenants
+                  .map(
+                    (tenant) => DropdownMenuItem<String>(
+                      value: tenant.id,
+                      child: Text(tenant.name, overflow: TextOverflow.ellipsis),
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }
