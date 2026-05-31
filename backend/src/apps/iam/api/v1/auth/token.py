@@ -85,7 +85,7 @@ async def refresh_token(
         # Revoke old refresh token
         if refresh_jti and token_tracking:
             token_tracking.is_active = False
-            token_tracking.revoked_at = datetime.now(timezone.utc)
+            token_tracking.revoked_at = datetime.utcnow()
             token_tracking.revoke_reason = "Token refreshed"
         
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -108,7 +108,7 @@ async def refresh_token(
             token_type=TokenType.ACCESS,
             ip_address=ip_address,
             user_agent=user_agent,
-            expires_at=datetime.fromtimestamp(access_payload["exp"], tz=timezone.utc)
+            expires_at=datetime.utcfromtimestamp(access_payload["exp"])
         )
         db.add(access_token_tracking)
         
@@ -118,7 +118,7 @@ async def refresh_token(
             token_type=TokenType.REFRESH,
             ip_address=ip_address,
             user_agent=user_agent,
-            expires_at=datetime.fromtimestamp(new_refresh_payload["exp"], tz=timezone.utc)
+            expires_at=datetime.utcfromtimestamp(new_refresh_payload["exp"])
         )
         db.add(refresh_token_tracking)
         await db.commit()

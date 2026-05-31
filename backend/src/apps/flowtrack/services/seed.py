@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -35,7 +35,8 @@ async def seed_flowtrack_defaults(db: AsyncSession) -> None:
         for policy in (await db.execute(select(SlaPolicy))).scalars().all()
     }
 
-    now = datetime.now(UTC)
+    # SQLModel columns are TIMESTAMP WITHOUT TIME ZONE, so use naive UTC values.
+    now = datetime.utcnow()
     for priority, (name, first_response_minutes, resolution_minutes) in DEFAULT_SLA_POLICIES.items():
         if priority in existing_policies:
             continue

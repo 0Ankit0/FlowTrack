@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from unittest.mock import AsyncMock, patch
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.pool import NullPool
 from sqlmodel import SQLModel
 
 from src.main import app
@@ -19,12 +19,15 @@ os.environ["TESTING"] = "True"
 @pytest.fixture(scope="function")
 async def test_engine():
     """Create a test engine for each test function with unique database."""
-    # Use in-memory database with StaticPool
+    test_db_url = os.getenv(
+        "TEST_DATABASE_URL",
+        "postgresql+psycopg://postgres:postgres@localhost:5432/flowtrack_test",
+    )
+
     engine = create_async_engine(
-        "sqlite+aiosqlite:///:memory:",
+        test_db_url,
         echo=False,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool
+        poolclass=NullPool,
     )
     
     async with engine.begin() as conn:

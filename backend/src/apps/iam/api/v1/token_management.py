@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlmodel import select, desc, func, col
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime, timezone
+from datetime import datetime
 from src.apps.iam.api.deps import get_current_user, get_db
 from src.apps.iam.models.user import User
 from src.apps.iam.models.token_tracking import TokenTracking
@@ -109,7 +109,7 @@ async def revoke_token(
             )
         
         token_tracking.is_active = False
-        token_tracking.revoked_at = datetime.now(timezone.utc)
+        token_tracking.revoked_at = datetime.utcnow()
         token_tracking.revoke_reason = "Revoked by user"
         await db.commit()
         await record_token_event(
@@ -163,7 +163,7 @@ async def revoke_all_tokens(
         
         for token_tracking in tokens:
             token_tracking.is_active = False
-            token_tracking.revoked_at = datetime.now(timezone.utc)
+            token_tracking.revoked_at = datetime.utcnow()
             token_tracking.revoke_reason = "All tokens revoked by user"
         
         await db.commit()

@@ -221,7 +221,7 @@ async def social_callback(
         token_type=TokenType.ACCESS,
         ip_address=ip_address,
         user_agent=user_agent,
-        expires_at=datetime.fromtimestamp(access_payload["exp"], tz=timezone.utc),
+           expires_at=datetime.utcfromtimestamp(access_payload["exp"]),
     ))
     db.add(TokenTracking(
         user_id=user.id,
@@ -229,7 +229,7 @@ async def social_callback(
         token_type=TokenType.REFRESH,
         ip_address=ip_address,
         user_agent=user_agent,
-        expires_at=datetime.fromtimestamp(refresh_payload["exp"], tz=timezone.utc),
+           expires_at=datetime.utcfromtimestamp(refresh_payload["exp"]),
     ))
     await db.commit()
     await record_successful_login_event(

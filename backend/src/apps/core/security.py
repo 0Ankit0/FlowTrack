@@ -31,6 +31,8 @@ class TokenType(str, Enum):
     PASSWORD_RESET = "password_reset"
     EMAIL_VERIFICATION = "email_verification"
     TEMP_AUTH = "temp_auth"
+    IP_WHITELIST = "ip_whitelist"
+    IP_BLACKLIST = "ip_blacklist"
     BEARER = "bearer"
 
 

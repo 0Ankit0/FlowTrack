@@ -16,7 +16,7 @@ class TokenTrackingBase(SQLModel):
         description="JWT ID (JTI) - unique identifier for the token"
     )
     token_type: TokenType = Field(
-        sa_column=Column(SAEnum(TokenType, values_callable=lambda e: [m.value for m in e])),
+        sa_column=Column(SAEnum(TokenType, name="tokentype")),
         description="Type of token: access, refresh"
     )
     ip_address: str = Field(

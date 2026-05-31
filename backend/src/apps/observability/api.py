@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import or_
@@ -203,7 +203,7 @@ async def update_incident(
     if payload.review_notes is not None:
         incident.review_notes = payload.review_notes
     incident.reviewed_by = current_user.id
-    incident.reviewed_at = datetime.now(timezone.utc)
+    incident.reviewed_at = datetime.utcnow()
     await db.commit()
     await db.refresh(incident)
     return SecurityIncidentRead.model_validate(incident)
