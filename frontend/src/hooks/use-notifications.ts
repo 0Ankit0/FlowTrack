@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
 import { apiClient } from '@/lib/api-client';
 import type {
   NotificationDevice,
@@ -164,10 +165,18 @@ export function useNotificationDevices(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ['notification-devices'],
     queryFn: async () => {
-      const response = await apiClient.get<NotificationDevice[]>('/notifications/devices/');
-      return response.data;
+      try {
+        const response = await apiClient.get<NotificationDevice[]>('/notifications/devices/');
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 503) {
+          return [];
+        }
+        throw error;
+      }
     },
     enabled: options?.enabled ?? true,
+    retry: false,
   });
 }
 

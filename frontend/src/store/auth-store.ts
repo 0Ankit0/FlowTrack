@@ -35,6 +35,7 @@ export const useAuthStore = create<AuthState>()(
         if (typeof window !== 'undefined') {
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
+          localStorage.removeItem('selected_tenant_id');
         }
         set({ user: null, tenant: null, isAuthenticated: false });
       },

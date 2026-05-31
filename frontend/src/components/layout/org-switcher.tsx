@@ -46,12 +46,30 @@ export function OrgSwitcher() {
 
   const tenants: Tenant[] = data?.items ?? [];
 
+  useEffect(() => {
+    if (activeTenant || tenants.length === 0 || typeof window === 'undefined') return;
+
+    const selectedTenantId = localStorage.getItem('selected_tenant_id');
+    if (!selectedTenantId) return;
+
+    const matchedTenant = tenants.find((tenant) => tenant.id === selectedTenantId);
+    if (matchedTenant) {
+      setTenant(matchedTenant);
+      return;
+    }
+
+    localStorage.removeItem('selected_tenant_id');
+  }, [activeTenant, setTenant, tenants]);
+
   const handleSwitch = (t: Tenant) => {
     switchTenant.mutate(t);
     setOpen(false);
   };
 
   const handlePersonal = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('selected_tenant_id');
+    }
     setTenant(null);
     setOpen(false);
   };

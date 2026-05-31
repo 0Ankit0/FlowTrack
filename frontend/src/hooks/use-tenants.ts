@@ -218,6 +218,9 @@ export function useSwitchTenant() {
 
   return useMutation({
     mutationFn: async (tenant: Tenant) => {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selected_tenant_id', tenant.id);
+      }
       setTenant(tenant);
       return tenant;
     },

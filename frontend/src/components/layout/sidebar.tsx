@@ -37,7 +37,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: capabilities } = useSystemCapabilities();
   const user = useAuthStore((state) => state.user);
-  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'Flowtrack';
+  const appName = import.meta.env.VITE_APP_NAME ?? 'Flowtrack';
 
   const visibleNavigation = mainNavigation.filter(
     (item) => !item.feature || capabilities?.modules[item.feature] !== false

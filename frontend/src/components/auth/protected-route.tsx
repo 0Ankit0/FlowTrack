@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from 'axios';
 import { useAuthStore } from '@/store/auth-store';
 import { apiClient } from '@/lib/api-client';
 
@@ -10,11 +9,9 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
-  const { isAuthenticated, _hasHydrated, setUser, setTokens, logout } = useAuthStore();
+  const { isAuthenticated, _hasHydrated, setUser, logout } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
@@ -34,7 +31,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         return;
       }
 
-      // Not authenticated — check if a refresh token is stored
+      // Not authenticated — check if a refresh token is stored.
+      // Token exchange is handled centrally in api-client interceptor.
       const refreshToken =
         typeof window !== 'undefined' ? localStorage.getItem('refresh_token') : null;
 
@@ -45,20 +43,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         return;
       }
 
-      // Try to exchange the refresh token for a new token pair
       try {
-        const refreshRes = await axios.post(
-          `${baseURL}/auth/refresh/`,
-          { refresh_token: refreshToken },
-          { params: { set_cookie: false } }
-        );
-        const { access, refresh } = refreshRes.data;
-        setTokens(access, refresh);
-
-        // Fetch user with the new access token
-        const userRes = await apiClient.get('/users/me', {
-          headers: { Authorization: `Bearer ${access}` },
-        });
+        const userRes = await apiClient.get('/users/me');
         setUser(userRes.data);
       } catch {
         // Refresh failed (token expired / revoked) → clear everything and go to login

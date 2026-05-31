@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAuthStore } from '@/store/auth-store';
 import { useAssignTicket, useCreateTicket, useProjects, useRegisterTicketAttachment, useTicket, useTickets, useUpdateTicket, useAddTicketComment } from '@/hooks/use-flowtrack';
+import { useTenantMembers } from '@/hooks/use-tenants';
 import { useListUsers } from '@/hooks/use-users';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,7 @@ export default function TicketsPage() {
   const ticketsQuery = useTickets({ tenantId, limit: 50 });
   const projectsQuery = useProjects(tenantId);
   const usersQuery = useListUsers({ limit: 100 });
+  const tenantMembersQuery = useTenantMembers(tenantId ?? '', { limit: 100 });
   const createTicket = useCreateTicket();
   const updateTicket = useUpdateTicket();
   const addComment = useAddTicketComment();
@@ -48,6 +50,21 @@ export default function TicketsPage() {
       ),
     [user]
   );
+
+  const assigneeOptions = useMemo(() => {
+    const users = usersQuery.data?.items ?? [];
+    if (users.length > 0) {
+      return users.map((assignee) => ({
+        value: assignee.id,
+        label: assignee.first_name || assignee.username || assignee.email || assignee.id,
+      }));
+    }
+
+    return (tenantMembersQuery.data?.items ?? []).map((member) => ({
+      value: member.user_id,
+      label: `Member ${member.user_id}`,
+    }));
+  }, [tenantMembersQuery.data?.items, usersQuery.data?.items]);
 
   const [ticketForm, setTicketForm] = useState<{
     title: string;
@@ -358,9 +375,9 @@ export default function TicketsPage() {
                         }
                       >
                         <option value="">Select assignee</option>
-                        {(usersQuery.data?.items ?? []).map((assignee) => (
-                          <option key={assignee.id} value={assignee.id}>
-                            {assignee.first_name || assignee.username || assignee.email}
+                        {assigneeOptions.map((assignee) => (
+                          <option key={assignee.value} value={assignee.value}>
+                            {assignee.label}
                           </option>
                         ))}
                       </select>
