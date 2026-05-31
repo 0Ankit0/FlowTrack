@@ -27,8 +27,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: template
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db/template
-      SYNC_DATABASE_URL: postgresql://postgres:postgres@db/template
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db/template
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
@@ -54,8 +53,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: template
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db/template
-      SYNC_DATABASE_URL: postgresql://postgres:postgres@db/template
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db/template
       REDIS_URL: redis://redis:6379/0
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
@@ -70,9 +68,9 @@ services:
     volumes:
       - ./frontend:/app
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
-      NEXT_PUBLIC_ANALYTICS_ENABLED: "false"
-    command: sh -c "npm ci && npm run dev -- --hostname 0.0.0.0"
+      VITE_API_URL: http://localhost:8000/api/v1
+      VITE_ANALYTICS_ENABLED: "false"
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 3000"
     ports:
       - "3000:3000"
     depends_on:

@@ -33,3 +33,8 @@ Flowtrack is an internal project management and external ticketing platform buil
 - General API smoke test: `cd backend && uv run --group test pytest tests/integration/api/test_general.py -q`
 - Flowtrack integration tests: `cd backend && uv run --group test pytest tests/integration/flowtrack/test_flowtrack_api.py -q`
 - Flowtrack workflow unit tests: `cd backend && uv run --group test pytest tests/unit/flowtrack/test_workflow.py -q`
+
+## QA Runbooks
+
+- Seed data reference: [docs/qa/SEED_DATA.md](docs/qa/SEED_DATA.md)
+- Manual test checklist (web + mobile viewport): [docs/qa/MANUAL_QA_RUNBOOK.md](docs/qa/MANUAL_QA_RUNBOOK.md)
