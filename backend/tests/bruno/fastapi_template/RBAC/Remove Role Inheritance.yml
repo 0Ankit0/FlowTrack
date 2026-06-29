@@ -1,0 +1,62 @@
+info:
+  name: Remove Role Inheritance
+  type: http
+  seq: 9
+
+http:
+  method: DELETE
+  url: "{{BASE_URI}}/api/v1/organizations/:org/rbac/role-inheritance"
+  params:
+    - name: org
+      value: testorg
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "role": "admin",
+        "parent_role": "member"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: success
+    request:
+      url: "{{BASE_URI}}/api/v1/organizations/:org/rbac/role-inheritance"
+      method: DELETE
+      params:
+        - name: org
+          value: testorg
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+          	"role": "admin",
+          	"parent_role": "member"
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: date
+          value: Mon, 22 Jun 2026 08:01:29 GMT
+        - name: server
+          value: uvicorn
+        - name: content-length
+          value: "64"
+        - name: content-type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "Role inheritance removed successfully.",
+            "data": null
+          }
