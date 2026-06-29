@@ -21,6 +21,11 @@ from src.apps.analytics.dependencies import get_analytics
 from src.apps.analytics.service import AnalyticsService
 from src.apps.analytics.events import AuthEvents
 from src.apps.observability.service import record_token_event
+from src.apps.core.logging import set_log_context
+import logging
+
+# Initialize standard Python logger
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 limiter = Limiter(key_func=get_remote_address)
@@ -152,6 +157,7 @@ async def signup(
         raise
     except Exception:
         await db.rollback()
+        logger.exception("Error during signup process",exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An error occurred during signup"

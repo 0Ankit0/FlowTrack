@@ -33,7 +33,7 @@ import AdminUsersPage from '@/app/(admin-dashboard)/admin/users/page';
 import AdminRbacPage from '@/app/(admin-dashboard)/admin/rbac/page';
 import AdminRolePage from '@/app/(admin-dashboard)/admin/rbac/[roleId]/page';
 import AdminSecurityReviewPage from '@/app/(admin-dashboard)/admin/security-review/page';
-import AdminLogsPage from '@/app/(admin-dashboard)/admin/logs/page';
+// import AdminLogsPage from '@/app/(admin-dashboard)/admin/logs/page';
 
 function ThemeBootstrap() {
   useEffect(() => {
@@ -146,7 +146,7 @@ export function App() {
           <Route path="/admin/rbac" element={<AdminRbacPage />} />
           <Route path="/admin/rbac/:roleId" element={<AdminRolePage />} />
           <Route path="/admin/security-review" element={<AdminSecurityReviewPage />} />
-          <Route path="/admin/logs" element={<AdminLogsPage />} />
+          {/* <Route path="/admin/logs" element={<AdminLogsPage />} /> */}
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
