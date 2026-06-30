@@ -3,8 +3,9 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy.orm import  mapped_column, Mapped
 from sqlalchemy import BigInteger, DateTime, Boolean, Enum as SQLEnum, String, func, text
+from src.apps.project.models.project import Project
 from src.db.types import CITEXT_TYPE
-from src.core.eums import UserStatus, enum_values
+from src.core.enums import UserStatus, enum_values
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from src.db.base import Base
@@ -91,4 +92,9 @@ class User(Base, TimestampMixin):
         back_populates="user",
         foreign_keys="OrganizationMember.user_id",
         cascade="all, delete-orphan",
+    )
+    owned_projects: Mapped[list["Project"]] = relationship(
+        "Project",
+        back_populates="owner",
+        foreign_keys="Project.owner_id",
     )
