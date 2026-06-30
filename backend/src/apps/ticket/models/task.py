@@ -4,7 +4,7 @@ from datetime import date, datetime
 from typing import List, Optional, TYPE_CHECKING
 from sqlalchemy import Date, DateTime, Enum, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.core.enums import TaskPriority, TaskStatus
+from src.core.enums import Priority, TaskStatus
 from src.db.base import Base
 
 if TYPE_CHECKING:
@@ -58,9 +58,9 @@ class Task(Base):
         default=TaskStatus.TODO,
     )
 
-    priority: Mapped[TaskPriority] = mapped_column(
-        Enum(TaskPriority, name="taskpriority", create_type=False),
-        default=TaskPriority.MEDIUM,
+    priority: Mapped[Priority] = mapped_column(
+        Enum(Priority, name="priority", create_type=False),
+        default=Priority.MEDIUM,
     )
 
     planned_start_date: Mapped[Optional[date]] = mapped_column(Date)

@@ -4,6 +4,12 @@ from __future__ import annotations
 
 from enum import Enum
 
+class Priority(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+
 class ProjectStatus(str, Enum):
     PLANNING = "planning"
     ACTIVE = "active"
@@ -32,24 +38,12 @@ class TaskStatus(str, Enum):
     COMPLETED = "completed"
     CANCELED = "canceled"
 
-class TaskPriority(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    URGENT = "urgent"
-
 class TicketStatus(str, Enum):
     BACKLOG = "backlog"
     TODO = "todo"
     IN_PROGRESS = "in_progress"
     REVIEW = "review"
     DONE = "done"
-
-class TicketPriority(str, Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    URGENT = "urgent"
 
 class TicketActivityType(str, Enum):
     STATUS_CHANGED = "status_changed"

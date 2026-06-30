@@ -6,7 +6,7 @@ from sqlalchemy import ForeignKey, String, Text, Enum, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.base import Base
-from src.core.enums import TicketStatus, TicketPriority
+from src.core.enums import TicketStatus, Priority
 
 if TYPE_CHECKING:
     from src.apps.iam.models.user import User
@@ -63,9 +63,9 @@ class Ticket(Base):
         default=TicketStatus.TODO,
     )
 
-    priority: Mapped[TicketPriority] = mapped_column(
-        Enum(TicketPriority, name="ticketpriority", create_type=False),
-        default=TicketPriority.MEDIUM,
+    priority: Mapped[Priority] = mapped_column(
+        Enum(Priority, name="priority", create_type=False),
+        default=Priority.MEDIUM,
     )
 
     created_at: Mapped[datetime] = mapped_column(
