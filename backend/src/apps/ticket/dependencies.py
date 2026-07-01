@@ -2,9 +2,9 @@ from typing import Annotated
 from src.db.query import select
 from src.core.exceptions import NotFoundError
 from fastapi import Path, Depends
-from backend.src.apps.ticket.models.ticket import Ticket
-from backend.src.core.dependencies import DB, CurrentProject
-from backend.src.core.types import HashId
+from src.apps.ticket.models.ticket import Ticket
+from src.core.dependencies import DB, CurrentProject
+from src.core.types import HashId
 
 
 async def get_current_ticket(

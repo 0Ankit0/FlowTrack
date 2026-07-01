@@ -9,7 +9,7 @@ from src.db.base import Base
 from src.core.enums import Priority
 
 if TYPE_CHECKING:
-    from backend.src.apps.ticket.models.ticket import Ticket
+    from src.apps.ticket.models.ticket import Ticket
 
 class SLAPolicy(Base, TimestampMixin):
     __tablename__ = "sla_policies"

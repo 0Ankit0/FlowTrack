@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, Request, Path
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 
-from backend.src.apps.ticket.models.activity_log import TicketActivityLog
+from src.apps.ticket.models.activity_log import TicketActivityLog
 from src.core.types import HashId
 from src.apps.iam.models.user import User
 from src.apps.ticket.dependencies import CurrentTicket
