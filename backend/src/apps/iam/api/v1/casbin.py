@@ -38,7 +38,6 @@ router = APIRouter(
     tags=["RBAC"],
     dependencies=[
         Depends(require_module_permission(Module.RBAC)),
-        # Depends(get_current_active_superuser)
     ]
 )
 
@@ -61,7 +60,7 @@ async def add_permission(
     org: CurrentOrg,
     request: Request,
 ):
-    success = PolicyService.add_permission(
+    success = PolicyService.add_org_permission(
         role=payload.role,
         org_slug=str(org.slug),
         module=payload.module,
@@ -92,7 +91,7 @@ async def remove_permission(
     org: CurrentOrg,
     request: Request
 ):
-    success = PolicyService.remove_permission(
+    success = PolicyService.remove_org_permission(
         role=payload.role,
         org_slug=str(org.slug),
         module=payload.module,
@@ -123,7 +122,7 @@ async def get_permissions(
     org: CurrentOrg,
     request: Request
 ):
-    permissions = PolicyService.get_permissions(role, str(org.slug))
+    permissions = PolicyService.get_direct_permissions(role, str(org.slug))
     permissions = [PermissionResponse.model_validate({
         "role": policy[0],
         "org": policy[1],
@@ -152,14 +151,13 @@ async def assign_role(
     request: Request,
     org: CurrentOrg,
 ):
-    
-    user =await db.get(User, payload.user_id)
+    user = await db.get(User, payload.user_id)
 
     if not user:
         raise NotFoundError(message="User not found.")
 
-    success = PolicyService.assign_role(
-        user=user,
+    success = PolicyService.assign_org_role(
+        user_id=user.id,
         role=payload.role,
         org_slug=str(org.slug),
     )
@@ -193,7 +191,7 @@ async def revoke_role(
     if not user:
         raise NotFoundError(message="User not found.")
 
-    success = PolicyService.revoke_role(
+    success = PolicyService.revoke_org_role(
         user_id=user.id,
         role=payload.role,
         org_slug=str(org.slug),
@@ -223,12 +221,12 @@ async def get_user_roles(
     org: CurrentOrg,
     request: Request
 ):
-    user =await db.get(User, user_id)
+    user = await db.get(User, user_id)
 
     if not user:
         raise NotFoundError(message="User not found.")
 
-    roles = PolicyService.get_user_roles(
+    roles = PolicyService.get_user_org_roles(
         user_id=user.id,
         org_slug=str(org.slug),
     )
@@ -254,14 +252,14 @@ async def get_user_permissions(
     org: CurrentOrg,
     request: Request
 ):
-    user =await db.get(User, user_id)
+    user = await db.get(User, user_id)
 
     if not user:
         raise NotFoundError(message="User not found.")
 
-    permissions = PolicyService.get_user_permissions(
+    permissions = PolicyService.get_user_implicit_permissions(
         user_id=user.id,
-        org_slug=str(org.slug),
+        domain=str(org.slug),
     )
     permissions = [PermissionResponse.model_validate({
         "role": policy[0],
@@ -292,7 +290,7 @@ async def inherit_role(
     success = PolicyService.inherit_role(
         role=payload.role,
         parent_role=payload.parent_role,
-        org_slug=str(org.slug),
+        domain=str(org.slug),
     )
 
     logger.info(
@@ -321,7 +319,7 @@ async def remove_role_inheritance(
     success = PolicyService.remove_role_inheritance(
         role=payload.role,
         parent_role=payload.parent_role,
-        org_slug=str(org.slug),
+        domain=str(org.slug),
     )
 
     logger.info(

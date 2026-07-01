@@ -5,6 +5,9 @@ from fastapi import status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends, HTTPException, Path, Request
+from src.apps.project.models.milestone import Milestone
+from src.apps.project.models.project import Project
+from src.core.types import HashId
 from src.core.config import settings
 from src.core.exceptions import AuthenticationError, AuthorizationError, NotFoundError, ValidationError
 from src.core import security
@@ -13,10 +16,9 @@ from src.apps.iam.schemas.token import TokenPayload
 from src.apps.organizations.models.organization import Organization
 from src.apps.iam.models import TokenTracking
 from src.apps.iam.models.user import User
-from src.apps.organizations.models.organization import Organization
-from src.core.exceptions import NotFoundError
 from src.db.session import get_session 
 from src.apps.iam.casbin import enforcer
+from src.apps.iam.services.policy_service import PolicyService
 from src.core.enums import RBACAction as Action, RBACModule as Module, UserStatus
 
 DB = Annotated[AsyncSession, Depends(get_session)]
@@ -142,43 +144,76 @@ async def get_current_org(
     current_user: CurrentUser,
     org: Annotated[str, Path(description="Organization slug")],
 ) -> Organization | None:
-    """
-    Get the current organization based on the org slug query parameter and user membership
-    """
-    try:
-        if not org:
-            raise NotFoundError("Organization slug is required")
-        
-        if current_user.is_superuser:
-            if org == "global":
-                return None
+    """Fetches and verifies the organization context, enforcing Casbin organization membership."""
+    if not org:
+        raise NotFoundError("Organization slug is required")
+    
+    # Handle global superuser context bypass
+    if current_user.is_superuser and org == "global":
+        return None
+
+    result = await db.execute(
+        select(Organization).where(Organization.slug == org)
+    )
+    organization = result.scalars().first()
+    
+    if not organization:
+        raise NotFoundError("Organization not found")
+    
+    # Secure Enforcement Step: Verify the user holds an active role on this organization via Casbin
+    if not current_user.is_superuser:
+        is_member = PolicyService.is_org_member(current_user, str(org))
+        if not is_member:
+            raise AuthorizationError(message="Access denied to this organization")
             
-            result = await db.execute(
-                select(Organization).where(Organization.slug == org)
-            )
-            organization = result.scalars().first()
-            if not organization:
-                raise NotFoundError("Organization not found")
-            return organization
-        
-        # Check if the user is a member of the specified organization
-        result = await db.execute(
-            select(Organization).where(
-                Organization.slug == org,
-                Organization.members.any(id=current_user.id)
-            )
-        )
-        organization = result.scalars().first()
-        
-        if not organization:
-            raise NotFoundError("Organization not found or access denied")
-        
-        return organization
-    except Exception:
-        raise 
+    return organization
 
 CurrentOrg = Annotated[Organization, Depends(get_current_org)]
  
+async def get_current_project(
+    db: DB,
+    current_user: CurrentUser,
+    current_org: CurrentOrg,
+    project_id: Annotated[HashId, Path(description="Project ID")],
+) -> Project:
+    """Fetches, verifies organization containment, and enforces Casbin project access rules."""
+    query = select(Project).where(Project.id == project_id)
+    if current_org:
+        query = query.where(Project.organization_id == current_org.id)
+        
+    result = await db.execute(query)
+    project = result.scalar_one_or_none()
+    if not project:
+        raise NotFoundError(message="Project not found")
+    
+    # Secure Enforcement Step: Verify the user holds an active role on this specific project
+    if not current_user.is_superuser:
+        is_member = PolicyService.is_project_member(current_user, str(project_id))
+        if not is_member:
+            raise AuthorizationError(message="Access denied to this project")
+
+    return project
+
+CurrentProject = Annotated[Project, Depends(get_current_project)]
+
+async def get_current_milestone(
+    db: DB,
+    current_project: CurrentProject,
+    milestone_id: Annotated[HashId, Path(description="Milestone ID")],
+) -> Milestone:
+    """Fetches a milestone verifying it belongs exclusively to the resolved project context."""
+    query = select(Milestone).where(
+        Milestone.id == milestone_id,
+        Milestone.project_id == current_project.id
+    )
+    result = await db.execute(query)
+    milestone = result.scalar_one_or_none()
+    if not milestone:
+        raise NotFoundError(message="Milestone not found")
+    return milestone
+
+CurrentMilestone = Annotated[Milestone, Depends(get_current_milestone)]
+
 def require_module_permission(module: Module):
     async def checker(
         request: Request,
@@ -190,9 +225,15 @@ def require_module_permission(module: Module):
 
         action = METHOD_ACTION_MAP[request.method]
 
+        # Automatically extract the project context from path parameters if available
+        project_id = request.path_params.get("project_id")
+        project_domain = f"proj_{project_id}" if project_id else "none"
+
+        # Updated to perfectly evaluate against your unified 5-parameter model track
         allowed = enforcer.enforce(
-            current_user.id,
-            org.id,
+            str(current_user.id),
+            str(org.slug) if org else "none",
+            project_domain,
             module.value,
             action.value,
         )

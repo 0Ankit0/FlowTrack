@@ -20,13 +20,13 @@ class Task(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
 
     project_id: Mapped[int] = mapped_column(
-        ForeignKey("flowtrack_projects.id", ondelete="CASCADE"),
+        ForeignKey("projects.id", ondelete="CASCADE"),
         index=True,
         nullable=False,
     )
 
     milestone_id: Mapped[Optional[int]] = mapped_column(
-        ForeignKey("flowtrack_milestones.id", ondelete="SET NULL"),
+        ForeignKey("project_milestones.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
@@ -50,7 +50,6 @@ class Task(Base):
     )
 
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-
     description: Mapped[Optional[str]] = mapped_column(Text)
 
     status: Mapped[TaskStatus] = mapped_column(
@@ -64,17 +63,11 @@ class Task(Base):
     )
 
     planned_start_date: Mapped[Optional[date]] = mapped_column(Date)
-
     due_date: Mapped[Optional[date]] = mapped_column(Date)
-
     completed_at: Mapped[Optional[datetime]] = mapped_column(DateTime)
-
     estimated_hours: Mapped[Optional[int]] = mapped_column(Integer)
-
     actual_hours: Mapped[Optional[int]] = mapped_column(Integer)
-
     sort_order: Mapped[int] = mapped_column(default=0)
-
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     updated_at: Mapped[datetime] = mapped_column(

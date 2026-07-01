@@ -12,7 +12,7 @@ from src.apps.organizations.schemas.organization_members import OrganizationMemb
 from src.core.utils import encode_cursor
 from src.core.exceptions import NotFoundError, ValidationError
 from src.core.cache import RedisCache
-from src.core.dependencies import DB, get_current_org, get_current_user, require_module_permission
+from src.core.dependencies import DB, get_current_org, get_current_user
 from src.core.enums import OrganizationMemberStatus, RBACModule, RBACRole
 from src.core.types import  HashId
 from src.core.schemas import ApiSuccessResponse, CursorPage, CursorPagination

@@ -44,13 +44,14 @@ class TicketStatus(str, Enum):
     IN_PROGRESS = "in_progress"
     REVIEW = "review"
     DONE = "done"
+    REOPENED = "reopened"
 
 class TicketActivityType(str, Enum):
-    STATUS_CHANGED = "status_changed"
     ASSIGNED = "assigned"
     UNASSIGNED = "unassigned"
     COMMENT_ADDED = "comment_added"
     CREATED = "created"
+    UPDATED = "updated"
     CLOSED = "closed"
     REOPENED = "reopened"
 
@@ -78,15 +79,22 @@ class RBACAction(str, Enum):
     DELETE = "delete"
 
 class RBACRole(str, Enum):
-    OWNER = "owner"
-    ADMIN = "admin"
-    MEMBER = "member"
+    ORG_ADMIN = "org_admin"
+    ORG_MANAGER = "org_manager"
+    ORG_MEMBER = "org_member"
+
+class ProjectRole(str, Enum):
+    PROJECT_ADMIN = "project_admin"
+    PROJECT_MANAGER = "project_manager"
+    PROJECT_MEMBER = "project_member"
+    PROJECT_VIEWER = "project_viewer"
 
 class RBACModule(str, Enum):
     USERS = "users"
     RBAC = "rbac"
     ORGANIZATIONS = "organizations"
     ORGANIZATION_MEMBERS = "organization_members"
+    PROJECTS = "projects"
 
 class EmailProvider(str, Enum):
     SMTP = "smtp"

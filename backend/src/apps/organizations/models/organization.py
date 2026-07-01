@@ -10,6 +10,7 @@ from src.db.mixins import TimestampMixin
 from src.core.enums import OrganizationStatus, enum_values
 
 if TYPE_CHECKING:
+    from src.apps.project.models.project import Project
     from iam.models import User
     from . import OrganizationMember
 
@@ -56,6 +57,11 @@ class Organization(Base, TimestampMixin):
     )
     members: Mapped[list["OrganizationMember"]] = relationship(
         "OrganizationMember",
+        back_populates="organization",
+        cascade="all, delete-orphan",
+    )
+    projects: Mapped[list["Project"]] = relationship(
+        "Project",
         back_populates="organization",
         cascade="all, delete-orphan",
     )

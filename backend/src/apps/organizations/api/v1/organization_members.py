@@ -92,7 +92,7 @@ async def list_organization_members(
     if has_next_page:
         members = members[:pagination.limit]
 
-    role_map = PolicyService.get_org_roles(org.slug)
+    role_map = PolicyService.get_org_members_map(org.slug)
 
     items = [
         OrganizationMemberResponse(
@@ -155,7 +155,7 @@ async def get_organization_member(
         .model_dump(exclude={"role"}
         )   
     )
-    response.role = PolicyService.get_user_roles(member_id, org.slug)
+    response.role = PolicyService.get_org_members_map(org.slug).get(member_id, [])
     await RedisCache.set(
         cache_key, 
         response,
@@ -367,9 +367,9 @@ async def remove_organization_member(
     if not member:
         raise NotFoundError(message="Organization member not found")
     
-    PolicyService.remove_user_with_roles(
-        member_id,
-        org.slug,
+    PolicyService.remove_user_from_org(
+        user_id=member_id,
+        org_slug=org.slug
     )
     
     await _invalidate_org_members_cache(org.id)

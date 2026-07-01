@@ -5,19 +5,21 @@ from typing import Optional, TYPE_CHECKING, List
 from sqlalchemy import ForeignKey, String, Text, Enum, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from src.db.mixins import TimestampMixin
 from src.db.base import Base
 from src.core.enums import TicketStatus, Priority
 
 if TYPE_CHECKING:
+    from src.apps.ticket.models.sla_policy import SLAPolicy
     from src.apps.iam.models.user import User
     from src.apps.project.models.project import Project
     from src.apps.project.models.milestone import Milestone
     from .task import Task
     from .comment import TicketComment
     from .attachment import TicketAttachment
-    from .activity import TicketActivityLog
+    from .activity_log import TicketActivityLog
 
-class Ticket(Base):
+class Ticket(Base, TimestampMixin):
     __tablename__ = "tickets"
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -55,9 +57,7 @@ class Ticket(Base):
         String(255),
         index=True,
     )
-
     description: Mapped[Optional[str]] = mapped_column(Text)
-
     status: Mapped[TicketStatus] = mapped_column(
         Enum(TicketStatus, name="ticketstatus", create_type=False),
         default=TicketStatus.TODO,
@@ -68,14 +68,17 @@ class Ticket(Base):
         default=Priority.MEDIUM,
     )
 
-    created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now()
+    sla_policy_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("sla_policies.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
+    first_response_due_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    resolution_due_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    first_response_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    resolved_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
+    sla_breached: Mapped[bool] = mapped_column(nullable=False, default=False)
 
-    updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(),
-        onupdate=func.now(),
-    )
 
     # Relationships
 
@@ -121,4 +124,7 @@ class Ticket(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
-
+    sla_policy: Mapped[Optional["SLAPolicy"]] = relationship(
+        "SLAPolicy",
+        back_populates="tickets",
+    )

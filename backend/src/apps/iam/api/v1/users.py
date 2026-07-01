@@ -77,9 +77,12 @@ async def list_users(
     """
     List all users with cursor pagination and optional filters.
     """
+    if not current_org:
+        raise ValidationError("Current organization not found")
 
+    # Secure Fix: Bound the cache signature directly to the org slug to prevent cross-tenant cache leaks
     cache_key = (
-        f"users:list:"
+        f"users:list:{current_org.slug}:"
         f"{pagination.cursor}:"
         f"{pagination.limit}:"
         f"{search}:"
@@ -96,10 +99,9 @@ async def list_users(
             selectinload(User.profile),
         )
     )
-    if not current_org:
-        raise ValidationError("Current organization not found")
     
-    role_map = PolicyService.get_org_roles(current_org.slug)
+    # Updated to mirror the exact method name signature tracking the unified Casbin footprint
+    role_map = PolicyService.get_org_members_map(str(current_org.slug))
         
     if search:
         search_filter = or_(
@@ -145,7 +147,6 @@ async def list_users(
         for user in users
     ]
     
-
     next_cursor = None
 
     if has_next_page and users:
@@ -165,7 +166,6 @@ async def list_users(
     )
 
     return response
-
 @router.get("/me", response_model=UserResponse)
 @USER_RATE_LIMIT
 async def get_current_user_profile(
