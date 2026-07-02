@@ -6,3 +6,13 @@ variables:
     name: access_token
   - name: baseUrl
     value: "{{BASE_URI}}"
+  - name: TEST_ORG
+    value: testOrg
+  - name: TEST_ORG_ID
+    value: 0gOg1X9Z
+  - name: TEST_USER_ID
+    value: 0gOg1X9Z
+  - name: TEST_PROJECT_ID
+    value: ""
+  - name: token
+    value: "{{access_token}}"

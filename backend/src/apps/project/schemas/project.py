@@ -12,14 +12,15 @@ class ProjectBase(BaseSchema):
     description: str | None = None
     budget_notes: str | None = None
 
-    start_date: date | None = None
-    target_end_date: date | None = None
 
 
 class ProjectCreate(ProjectBase):
     owner_id: HashId | None = None
     status: ProjectStatus = ProjectStatus.PLANNING
     health: ProjectHealth = ProjectHealth.HEALTHY
+
+    start_date: date | None = None
+    target_end_date: date | None = None
 
 
 class ProjectUpdate(ProjectBase):
@@ -29,15 +30,6 @@ class ProjectUpdate(ProjectBase):
 
 
 class ProjectPartialUpdate(BaseSchema):
-    name: str | None = None
-    description: str | None = None
-    budget_notes: str | None = None
-
-    owner_id: HashId | None = None
-
-    start_date: date | None = None
-    target_end_date: date | None = None
-
     status: ProjectStatus | None = None
     health: ProjectHealth | None = None
 

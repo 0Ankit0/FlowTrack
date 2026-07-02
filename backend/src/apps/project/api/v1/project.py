@@ -140,17 +140,18 @@ async def update_project(
     db: DB, 
     request: Request
     ):
-    project.name = project_data.name
-    project.description = project_data.description
-    project.budget_notes = project_data.budget_notes
-    project.start_date = project_data.start_date
-    project.target_end_date = project_data.target_end_date
-    
-    if project_data.status is not None:
+    if project_data.name:
+        project.name = project_data.name
+    if project_data.description:
+        project.description = project_data.description
+    if project_data.budget_notes:
+        project.budget_notes = project_data.budget_notes
+
+    if project_data.status:
         project.status = project_data.status
-    if project_data.health is not None:
+    if project_data.health:
         project.health = project_data.health
-    if project_data.owner_id is not None:
+    if project_data.owner_id:
         project.owner_id = project_data.owner_id
 
     await db.commit()
@@ -166,6 +167,8 @@ async def update_project(
 async def partial_update_project(project_data: ProjectPartialUpdate, project: CurrentProject, db: DB, request: Request):
     update_data = project_data.model_dump(exclude_unset=True)
     for key, value in update_data.items():
+        if not value:
+            continue
         setattr(project, key, value)
 
     await db.commit()

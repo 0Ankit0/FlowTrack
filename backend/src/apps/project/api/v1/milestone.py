@@ -111,6 +111,7 @@ async def create_milestone(
     new_milestone = Milestone(
         project_id=current_project.id,
         owner_id=milestone_data.owner_id or current_user.id,
+        created_by=current_user.id,
         title=milestone_data.title,
         description=milestone_data.description,
         status=milestone_data.status,

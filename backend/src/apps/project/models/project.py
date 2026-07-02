@@ -24,6 +24,7 @@ class Project(Base, TimestampMixin):
     id: Mapped[Optional[int]] = mapped_column(primary_key=True, default=None, nullable=False)
     owner_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), default=None, index=True)
     organization_id: Mapped[Optional[int]] = mapped_column(ForeignKey("organizations.id", ondelete="SET NULL"), default=None, index=True)
+    created_by: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), default=None, index=True)
 
     name: Mapped[str] = mapped_column(String(150), index=True)
     description: Mapped[Optional[str]] = mapped_column(String(2000))
@@ -37,7 +38,7 @@ class Project(Base, TimestampMixin):
     health: Mapped[ProjectHealth] = mapped_column(Enum(ProjectHealth, name="projecthealth", create_type=False), default=ProjectHealth.HEALTHY)
 
     # ORM Relationships
-    owner: Mapped[Optional[User]] = relationship(back_populates="owned_projects", passive_deletes=True)
+    owner: Mapped[Optional[User]] = relationship(back_populates="owned_projects",foreign_keys=[owner_id], passive_deletes=True)
     organization: Mapped[Optional["Organization"]] = relationship(back_populates="projects", passive_deletes=True)
     milestones: Mapped[List[Milestone]] = relationship(back_populates="project", cascade="all, delete-orphan", passive_deletes=True)
     tickets: Mapped[List[Ticket]] = relationship(back_populates="project", cascade="all, delete-orphan", passive_deletes=True)
