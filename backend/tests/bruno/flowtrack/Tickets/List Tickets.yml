@@ -1,0 +1,193 @@
+info:
+  name: List Tickets
+  type: http
+  seq: 1
+  tags:
+    - Tickets
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/"
+  params:
+    - name: org
+      value: ""
+      type: path
+      description: Organization slug
+    - name: project_id
+      value: ""
+      type: path
+      description: Project ID
+    - name: search
+      value: ""
+      type: query
+      description: Search by title or description
+      disabled: true
+    - name: status
+      value: ""
+      type: query
+      description: Filter by ticket status
+      disabled: true
+    - name: priority
+      value: ""
+      type: query
+      description: Filter by ticket priority
+      disabled: true
+    - name: assignee_id
+      value: ""
+      type: query
+      description: Filter by assigned user ID
+      disabled: true
+    - name: limit
+      value: "50"
+      type: query
+    - name: cursor
+      value: ""
+      type: query
+      disabled: true
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Successful Response
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/"
+      method: GET
+      params:
+        - name: org
+          value: ""
+          type: path
+          description: Organization slug
+        - name: project_id
+          value: ""
+          type: path
+          description: Project ID
+        - name: search
+          value: ""
+          type: query
+          description: Search by title or description
+          disabled: true
+        - name: status
+          value: ""
+          type: query
+          description: Filter by ticket status
+          disabled: true
+        - name: priority
+          value: ""
+          type: query
+          description: Filter by ticket priority
+          disabled: true
+        - name: assignee_id
+          value: ""
+          type: query
+          description: Filter by assigned user ID
+          disabled: true
+        - name: limit
+          value: "50"
+          type: query
+        - name: cursor
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "items": [
+              {
+                "title": "",
+                "description": "",
+                "status": "backlog",
+                "priority": "low",
+                "id": "",
+                "project_id": "",
+                "milestone_id": "",
+                "task_id": "",
+                "reporter_id": "",
+                "assignee_id": "",
+                "sla_policy_id": "",
+                "first_response_due_at": "",
+                "resolution_due_at": "",
+                "first_response_at": "",
+                "resolved_at": "",
+                "sla_breached": false,
+                "created_at": "",
+                "updated_at": ""
+              }
+            ],
+            "next_cursor": ""
+          }
+  - name: 422 Response
+    description: Validation Error
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/"
+      method: GET
+      params:
+        - name: org
+          value: ""
+          type: path
+          description: Organization slug
+        - name: project_id
+          value: ""
+          type: path
+          description: Project ID
+        - name: search
+          value: ""
+          type: query
+          description: Search by title or description
+          disabled: true
+        - name: status
+          value: ""
+          type: query
+          description: Filter by ticket status
+          disabled: true
+        - name: priority
+          value: ""
+          type: query
+          description: Filter by ticket priority
+          disabled: true
+        - name: assignee_id
+          value: ""
+          type: query
+          description: Filter by assigned user ID
+          disabled: true
+        - name: limit
+          value: "50"
+          type: query
+        - name: cursor
+          value: ""
+          type: query
+          disabled: true
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": [
+              {
+                "loc": [],
+                "msg": "",
+                "type": "",
+                "input": "",
+                "ctx": {}
+              }
+            ]
+          }

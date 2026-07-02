@@ -1,0 +1,124 @@
+info:
+  name: Create Comment
+  type: http
+  seq: 2
+  tags:
+    - Ticket Comments
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/:ticket_id/comments/"
+  params:
+    - name: org
+      value: ""
+      type: path
+      description: Organization slug
+    - name: ticket_id
+      value: ""
+      type: path
+      description: Ticket ID
+    - name: project_id
+      value: ""
+      type: path
+      description: Project ID
+  body:
+    type: json
+    data: |-
+      {
+        "body": "",
+        "parent_comment_id": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Successful Response
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/:ticket_id/comments/"
+      method: POST
+      params:
+        - name: org
+          value: ""
+          type: path
+          description: Organization slug
+        - name: ticket_id
+          value: ""
+          type: path
+          description: Ticket ID
+        - name: project_id
+          value: ""
+          type: path
+          description: Project ID
+      body:
+        type: json
+        data: |-
+          {
+            "body": "",
+            "parent_comment_id": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "message": "",
+            "data": ""
+          }
+  - name: 422 Response
+    description: Validation Error
+    request:
+      url: "{{baseUrl}}/api/v1/organizations/:org/projects/:project_id/tickets/:ticket_id/comments/"
+      method: POST
+      params:
+        - name: org
+          value: ""
+          type: path
+          description: Organization slug
+        - name: ticket_id
+          value: ""
+          type: path
+          description: Ticket ID
+        - name: project_id
+          value: ""
+          type: path
+          description: Project ID
+      body:
+        type: json
+        data: |-
+          {
+            "body": "",
+            "parent_comment_id": ""
+          }
+    response:
+      status: 422
+      statusText: Unprocessable Entity
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "detail": [
+              {
+                "loc": [],
+                "msg": "",
+                "type": "",
+                "input": "",
+                "ctx": {}
+              }
+            ]
+          }

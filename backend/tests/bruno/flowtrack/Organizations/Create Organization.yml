@@ -5,7 +5,11 @@ info:
 
 http:
   method: POST
-  url: "{{BASE_URI}}/api/v1/organizations/"
+  url: "{{BASE_URI}}/api/v1/organizations/:org"
+  params:
+    - name: org
+      value: global
+      type: path
   body:
     type: json
     data: |-
