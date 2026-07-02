@@ -5,12 +5,13 @@ from typing import Annotated
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File, Request
 from sqlalchemy.orm import selectinload
+from src.core.exceptions import ValidationError
 from src.core.types import HashId
 from src.apps.organizations.models.organization import Organization
 from src.core.enums import UserStatus
 from src.core.utils import decode_cursor, encode_cursor
 from src.db.query import col, func, or_, select
-from src.core.dependencies import DB, get_current_user, get_current_active_superuser, get_current_org
+from src.core.dependencies import DB, CurrentOrg, CurrentUser, CurrentActiveSuperuser
 from src.apps.iam.models.user import User
 from src.apps.iam.schemas.user import UserResponse, UserUpdate
 from src.core.schemas import CursorPage, CursorPagination
@@ -29,24 +30,23 @@ logger = get_logger(__name__)
 USER_RATE_LIMIT = limiter.limit("10/minute")
 router = APIRouter(prefix="/users",tags=["Users"])
 
-def _serialize_user_response(user: User) -> dict[str, object]:
-    response = UserResponse.model_validate(user)
-    return {
-        "id": response.id,
-        "username": response.username,
-        "email": str(response.email),
-        "is_active": response.is_active,
-        "is_superuser": response.is_superuser,
-        "is_confirmed": response.is_confirmed,
-        "otp_enabled": response.otp_enabled,
-        "otp_verified": response.otp_verified,
-        "first_name": response.first_name,
-        "last_name": response.last_name,
-        "phone": response.phone,
-        "image_url": response.image_url,
-        "bio": response.bio,
-        "roles": response.roles,
-    }
+def _serialize_user_response(user: User,roles: list) -> UserResponse:
+    return UserResponse.model_validate({
+        "id": user.id,
+        "username": user.username,
+        "email": str(user.email),
+        "is_active": True if user.status == UserStatus.ACTIVE else False,
+        "is_superuser": user.is_superuser,
+        "is_confirmed": user.is_confirmed,
+        "otp_enabled": user.otp_enabled,
+        "otp_verified": user.otp_verified,
+        "first_name": user.profile.first_name if user.profile else None,
+        "last_name": user.profile.last_name if user.profile else None,
+        "phone": user.profile.phone if user.profile else None,
+        "image_url": user.profile.avatar_url if user.profile else None,
+        "bio": user.profile.bio if user.profile else None,
+        "roles": roles,
+    })
 
 
 async def _invalidate_user_cache(user_id: int) -> None:
@@ -56,14 +56,38 @@ async def _invalidate_user_cache(user_id: int) -> None:
     # await RedisCache.clear_pattern(f"casbin:permissions:{user_id}:*")
     # await RedisCache.clear_pattern(f"permission:check:{user_id}:*")
 
+@router.get("{org}/me", response_model=UserResponse)
+@USER_RATE_LIMIT
+async def get_current_user_profile(
+    request: Request,
+    current_org: CurrentOrg,
+    current_user: CurrentUser,
+):
+    """
+    Get current user's profile
+    """
+    cache_key = f"user:profile:{current_user.id}"
+    
+    # Try cache
+    cached = await RedisCache.get(cache_key)
+    if cached:
+        return UserResponse.model_validate(cached)
+    
+    # Get the user's roles
+    roles = PolicyService.get_user_org_roles(current_user.id, current_org.slug if current_org else "global")
+    cache_data = _serialize_user_response(current_user, roles)
+    # Cache for 5 minutes
+    await RedisCache.set(cache_key, cache_data, ttl=300)
+    
+    return current_user
 
 @router.get("/{org}", response_model=CursorPage[UserResponse])
 @USER_RATE_LIMIT
 async def list_users(
     db: DB,
     request: Request,
-    current_user: Annotated[User, Depends(get_current_active_superuser)],
-    current_org: Annotated[Organization, Depends(get_current_org)],
+    current_user: CurrentActiveSuperuser,
+    current_org: CurrentOrg,
     pagination: CursorPagination = Depends(),
     search: str | None = Query(
         default=None,
@@ -166,36 +190,16 @@ async def list_users(
     )
 
     return response
-@router.get("/me", response_model=UserResponse)
-@USER_RATE_LIMIT
-async def get_current_user_profile(
-    request: Request,
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Get current user's profile
-    """
-    cache_key = f"user:profile:{current_user.id}"
-    
-    # Try cache
-    cached = await RedisCache.get(cache_key)
-    if cached:
-        return UserResponse.model_validate(cached)
-    
-    cache_data = _serialize_user_response(current_user)
-    # Cache for 5 minutes
-    await RedisCache.set(cache_key, cache_data, ttl=300)
-    
-    return current_user
 
-@router.post("/me/avatar", response_model=UserResponse)
+@router.post("{org}/me/avatar", response_model=UserResponse)
 @USER_RATE_LIMIT
 async def upload_avatar(
     db: DB,
     request: Request,
+    current_user: CurrentUser,
+    current_org: CurrentOrg,
     file: UploadFile = File(...),
-    current_user: User = Depends(get_current_user),
-):
+) -> UserResponse:
     """Upload or replace the current user's avatar image."""
     ALLOWED_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
     MAX_SIZE = settings.MAX_AVATAR_SIZE_MB * 1024 * 1024
@@ -241,17 +245,18 @@ async def upload_avatar(
         await db.refresh(current_user.profile)
 
     await _invalidate_user_cache(current_user.id)
+    roles = PolicyService.get_user_org_roles(current_user.id, current_org.slug if current_org else "global")
+    return _serialize_user_response(current_user, roles)
 
-    return current_user
-
-@router.get("/{user_id}", response_model=UserResponse)
+@router.get("{org}/{user_id}", response_model=UserResponse)
 @USER_RATE_LIMIT
 async def get_user(
     user_id: HashId,
     db: DB,
     request: Request,
-    current_user: User = Depends(get_current_active_superuser)
-):
+    current_user: CurrentActiveSuperuser,
+    current_org: CurrentOrg
+)-> UserResponse:
     """
     Get user by ID (admin only)
     """
@@ -274,12 +279,12 @@ async def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    
-    cache_data = _serialize_user_response(user)
+    roles = PolicyService.get_user_org_roles(user.id, current_org.slug if current_org else "global")
+    cache_data = _serialize_user_response(user, roles)
     # Cache for 5 minutes
     await RedisCache.set(cache_key, cache_data, ttl=300)
     
-    return user
+    return _serialize_user_response(user, roles)
 
 @router.patch("/me", response_model=UserResponse)
 @USER_RATE_LIMIT
@@ -287,7 +292,7 @@ async def update_current_user(
     user_update: UserUpdate,
     db: DB,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: CurrentUser,
 ):
     """
     Update current user's profile
@@ -332,14 +337,15 @@ async def update_current_user(
 
     return current_user
 
-@router.patch("/{user_id}", response_model=UserResponse)
+@router.patch("{org}/{user_id}", response_model=UserResponse)
 @USER_RATE_LIMIT
 async def update_user(
     user_id: HashId,
     user_update: UserUpdate,
     db: DB,
     request: Request,
-    current_user: User = Depends(get_current_active_superuser),
+    current_user: CurrentActiveSuperuser,
+    current_org: CurrentOrg
 ):
     """
     Update user by ID (admin only)
@@ -417,13 +423,13 @@ async def update_user(
 
     return user
 
-@router.delete("/{user_id}")
+@router.delete("{org}/{user_id}")
 @USER_RATE_LIMIT
 async def delete_user(
     user_id: HashId,
     db: DB,
     request: Request,
-    current_user: User = Depends(get_current_active_superuser),
+    current_user: CurrentActiveSuperuser,
 ):
     """
     Delete user by ID (admin only)

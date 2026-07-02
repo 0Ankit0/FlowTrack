@@ -9,8 +9,6 @@ from src.core.security import validate_password_strength
 class UserBase(BaseSchema):
     username: str
     email: EmailStr
-    is_active: Optional[bool] = True
-    is_superuser: Optional[bool] = False
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
@@ -38,8 +36,6 @@ class UserUpdate(BaseSchema):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     phone: Optional[str] = None
-    is_active: Optional[bool] = None
-    is_superuser: Optional[bool] = None
 
 
 class LoginRequest(BaseSchema):
@@ -113,7 +109,6 @@ class UserResponse(BaseSchema):
     bio: Optional[str] = None
     roles: List[RBACRole] = []
 
-
     @model_validator(mode='before')
     @classmethod
     def extract_profile_and_roles(cls, data):
@@ -126,7 +121,7 @@ class UserResponse(BaseSchema):
             result['first_name'] = profile.first_name or None
             result['last_name'] = profile.last_name or None
             result['phone'] = profile.phone or None
-            result['avatar_url'] = profile.avatar_url or None
+            result['image_url'] = profile.avatar_url or None
             result['bio'] = profile.bio or None
         result['roles'] = [
             ur.role.name for ur in (result.get('user_roles') or []) if ur.role
